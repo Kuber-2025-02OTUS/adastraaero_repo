@@ -1,6 +1,6 @@
 # Репозиторий для выполнения домашних заданий курса "Инфраструктурная платформа на основе Kubernetes-2025-02" 
 
-1. HomeWork 1 
+1. **HomeWork 1** 
 
 Необходимо создать манифест namespace.yaml для namespace с именем homework.  
 Необходимо создать манифест pod.yaml. Он должен описывать под, который: 
@@ -29,7 +29,7 @@ kubectl apply -f pod.yaml
 
 </details>
 
-2. HomeWork 2
+2. **HomeWork 2**
 
 Необходимо создать манифест namespace.yaml для namespace с именем homework (уже создан в первом дз) 
 Необходимо создать манифест deployment.yaml. Он должен описывать deployment, который будет создаваться в namespace homework 
