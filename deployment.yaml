@@ -33,7 +33,7 @@ spec:
           image: busybox
           command: ["/bin/sh", "-c"]
           args:
-            - echo "<h1>OTUS HomeWORK 1</h1>" > /init/index.html;
+            - echo "<h1>OTUS HomeWORK 3</h1>" > /init/index.html;
           volumeMounts:
             - name: shared-volume
               mountPath: /init
@@ -43,19 +43,18 @@ spec:
           ports:
             - containerPort: 8000
           volumeMounts:
-            - name: shared-volume
+            - name: shared-volume # Указываем на emptyDir (временный том) из раздела mounts
               mountPath: /homework
-            - name: config-volume
-              mountPath: /etc/nginx/nginx.conf
-              subPath: nginx.conf
-          readinessProbe:  # Проверяем наличие файла /homework/index.html
-            exec:
-              command: ["/bin/sh", "-c", "test -f /homework/index.html"]
-            initialDelaySeconds: 5  # Подождать 5 секунд после старта контейнера прежде чем начать проверку
-            periodSeconds: 10 # Проверять каждые 10 секунд после первой проверки
+            - name: config-volume #Ссылаемся на configmap из первого дз
+              mountPath: /etc/nginx/nginx.conf # По каклму пути монтировать в контейнер
+              subPath: nginx.conf # Монтируем конкретный файл, а не весь configmap
+          readinessProbe:
+            httpGet: #проверка готовности будет выполняться http запросом
+              path: /index.html # Страница которую мы запрашиваем для проверки
+              port: 8000    # Порт на который выполняется http запрос, должен совпадать с containerPort:
+              initialDelaySeconds: 5 # Ждём 5 сек после старта контейнера, прежде чем начать выполнять проверки
+            periodSeconds: 10 # Проверка запускается каждые 10 сек.
           lifecycle:
-            preStop:
+            preStop: #Хук который выполняется перед остановкой контейнера
               exec:
                 command: ["/bin/sh", "-c", "rm -f /homework/index.html"]
-
-
