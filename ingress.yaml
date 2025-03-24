@@ -1,32 +1,28 @@
 apiVersion: networking.k8s.io/v1
-kind: Ingress #Создаём объект типа ingress, который управляет входящими http/https запросами и направляет их на сервисы.
+kind: Ingress
 metadata:
   name: homework-ingress
   namespace: homework
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: / #Данная аннотация означает, что если в запросе будет /index.html то ingress перепишет его на /
+    nginx.ingress.kubernetes.io/rewrite-target: /$1 
 spec:
   ingressClassName: nginx
   rules:
-  - host: homework.otus
-    http:
-      paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: homework-service
-              port:
-                number: 80
+    - host: homework.otus
+      http:
+        paths:
+          - path: /homepage
+            pathType: Prefix
+            backend:
+              service:
+                name: homework-service
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: homework-service
+                port:
+                  number: 80
 
-
-
-
-#     paths:
-#      - path: /index.html # Определяет писок url, которые будут направлены в backend
-#        pathType: Exact # Означает, что путь является префиксом — все, что начинается с /index.html, будет направлено в backend.
-#        backend: # Определяем куда направлять трафик
-#          service:
-#            name: homework-service # все запросы направляются на данный сервис
-#            port:
-#              number: 80 #Порт сервиса, на который будут идти запросы от Ingress
