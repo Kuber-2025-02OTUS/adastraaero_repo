@@ -1,20 +1,19 @@
+# deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: homework-deployment
   namespace: homework
-  labels:
-    app: homework
 spec:
-  replicas: 3  # Запускаем 3 экземпляра пода из прошлого ДЗ
+  replicas: 3
   selector:
     matchLabels:
       app: homework
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 1  # В процессе обновления может быть недоступен 1 под
-      maxSurge: 1        # Указываем что в процессе обновления можно создавать 1 дполнительный под
+      maxUnavailable: 1
+      maxSurge: 1
   template:
     metadata:
       labels:
@@ -23,11 +22,15 @@ spec:
       nodeSelector:
         homework: "true"  # Указываем, что поды могут запускаться только на нодах с меткой homework
       volumes:
-        - name: shared-volume
-          emptyDir: {}
+        - name: homework-pvc
+          persistentVolumeClaim:
+            claimName: homework-pvc  # Монтируем PVC из pvc.yaml
         - name: config-volume
           configMap:
-            name: nginx-config
+            name: nginx-config  # Монтируем ConfigMap с nginx
+        - name: homework-config
+          configMap:
+            name: homework-config  # Монтируем ConfigMap из cm.yaml
       initContainers:
         - name: init-container
           image: busybox
@@ -35,7 +38,7 @@ spec:
           args:
             - echo "<h1>OTUS HomeWORK 3</h1>" > /init/index.html;
           volumeMounts:
-            - name: shared-volume
+            - name: homework-pvc
               mountPath: /init
       containers:
         - name: web-server
@@ -43,18 +46,21 @@ spec:
           ports:
             - containerPort: 8000
           volumeMounts:
-            - name: shared-volume # Указываем на emptyDir (временный том) из раздела mounts
+            - name: homework-pvc
               mountPath: /homework
-            - name: config-volume #Ссылаемся на configmap из первого дз
-              mountPath: /etc/nginx/nginx.conf # По каклму пути монтировать в контейнер
-              subPath: nginx.conf # Монтируем конкретный файл, а не весь configmap
+            - name: config-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf  # Монтируем только nginx.conf из configMap
+            - name: homework-config
+              mountPath: /homework/conf  # Монтируем файлы из cm.yaml в /homework/conf
           readinessProbe:
-            httpGet: #проверка готовности будет выполняться http запросом
-              path: /index.html # Страница которую мы запрашиваем для проверки
-              port: 8000    # Порт на который выполняется http запрос, должен совпадать с containerPort:
-              initialDelaySeconds: 5 # Ждём 5 сек после старта контейнера, прежде чем начать выполнять проверки
-            periodSeconds: 10 # Проверка запускается каждые 10 сек.
+            httpGet:
+              path: /index.html
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
           lifecycle:
-            preStop: #Хук который выполняется перед остановкой контейнера
+            preStop:
               exec:
                 command: ["/bin/sh", "-c", "rm -f /homework/index.html"]
+

@@ -226,9 +226,118 @@ apk add curl
 <h1>OTUS HomeWORK 3</h1>
 ```
 
+</details>
+
+4. **HomeWork 4** 
+
+ 
 
 
+<details>
+  <summary>Ответ</summary>
+
+* Создать манифест pvc.yaml, описывающий PersistentVolumeClaim, запрашивающий хранилище с storageClass по-умолчанию.
+
+* Создать манифест cm.yaml для объекта типа configMap, описывающий произвольный набор пар ключ-значени.
+
+* В манифесте deployment.yaml изменить спецификацию volume типа emptyDir, который монтируется в init и основной контейнер, на pvc, созданный в предыдущем пункте.
+
+* В манифесте deployment.yaml добавить монтирование ранее созданного configMap как volume к основному контейнеру пода в директорию /homework/conf, так, чтобы его содержимое можно было получить, обратившись по url /conf/file.
+
+* Создать манифест storageClass.yaml описывающий объект типа storageClass с provisioner https://k8s.io/minikube-hostpath и reclaimPolicy Retain
+
+Создаём pvc.yaml и Storageclass, после чего их применяем. Результатом будет создание PV.
+
+
+```
+# pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: homework-pvc
+  namespace: homework
+spec:
+  storageClassName: "hw" 
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi  # Запрашиваем 100Mi
+```
+
+
+```
+# storageclass.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: hw
+provisioner: k8s.io/minikube-hostpath  # Используем локальное хранилище
+reclaimPolicy: Retain # После удаления PVC PV останется
+volumeBindingMode: Immediate # Сразу привязываем PV и PVC
+```
+
+Меняем в deployment volume вместо emptydir на pvc.
+```
+initContainers:
+        - name: init-container
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            - echo "<h1>OTUS HomeWORK 3</h1>" > /init/index.html;
+          volumeMounts:
+            - name: homework-pvc
+              mountPath: /init
+      containers:
+        - name: web-server
+          image: nginx
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - name: homework-pvc
+              mountPath: /homework
+            - name: config-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf  # Монтируем только nginx.conf из configMap
+            - name: homework-config
+              mountPath: /homework/conf  # Монтируем файлы из cm.yaml в /homework/conf
+```
+
+Создаём манифест cm.yaml, с двумя парами ключ-значение.
+
+```
+# cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homework-config
+  namespace: homework
+data:
+  file1.txt: |
+    OPOP 111
+  file2.txt: |
+    OPOP 2222
+```
+
+Проверка после применения всх манифестов:
+
+```
+kubectl run test --rm -it --image=alpine -- sh
+add apk curl
+curl http://homework-service:80/conf/file1.txt
+curl http://homework-service:80/conf/file1.txt
+```
+
+```
+kubectl port-forward svc/homework-service 8000:80 -n homework
+curl http://localhost:8000/conf/file1.txt
+curl http://localhost:8000/conf/file2.txt
+
+```
 
 
 
 </details>
+
+
+

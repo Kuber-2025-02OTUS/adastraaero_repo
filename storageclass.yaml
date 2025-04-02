@@ -1,0 +1,9 @@
+# storageclass.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: hw
+provisioner: k8s.io/minikube-hostpath  # Используем локальное хранилище
+reclaimPolicy: Retain # После удаления PVC PV останется
+volumeBindingMode: Immediate # Сразу привязываем PV и PVC
+
