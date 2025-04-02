@@ -1,0 +1,14 @@
+# pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: homework-pvc
+  namespace: homework
+spec:
+  storageClassName: "hw" 
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi  # Запрашиваем 100Mi
+

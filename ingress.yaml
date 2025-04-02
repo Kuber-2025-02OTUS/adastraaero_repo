@@ -4,9 +4,9 @@ metadata:
   name: homework-ingress
   namespace: homework
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1 
+    nginx.ingress.kubernetes.io/rewrite-target: /$1  # Автоматическая подстановка части пути после /homepage
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx   
   rules:
     - host: homework.otus
       http:
@@ -25,4 +25,5 @@ spec:
                 name: homework-service
                 port:
                   number: 80
+
 
