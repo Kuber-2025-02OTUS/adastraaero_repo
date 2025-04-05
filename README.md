@@ -338,7 +338,7 @@ curl http://localhost:8000/conf/file2.txt
 </details>
 
 
-3. **HomeWork 5**
+5. **HomeWork 5**
 
 В namespace homework создать service account monitoring и дать ему доступ к эндпоинту /metrics вашего кластера.
 Изменить манифест deployment из прошлых ДЗ так, чтобы поды запускались под service account monitoring. 
