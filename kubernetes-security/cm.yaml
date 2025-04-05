@@ -1,0 +1,11 @@
+# cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homework-config
+  namespace: homework
+data:
+  file1.txt: |
+    OPOP 111
+  file2.txt: |
+    OPOP 2222

@@ -1,0 +1,27 @@
+# configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: homework
+data:
+  nginx.conf: |
+    events { worker_connections 1024; }
+    http {
+        server {
+            listen 8000;
+            server_name localhost;
+            root /homework;
+            index index.html;
+
+            location / {
+                return 200 '$hostname\n';
+            }
+
+            # Добавляем обработку для /conf
+            location /conf/ {
+                alias /homework/conf/;  # Монтируем /homework/conf
+                autoindex on;           # Включаем автоматическую индексацию файлов
+            }
+        }
+    }
