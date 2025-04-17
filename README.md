@@ -567,6 +567,16 @@ KUBECONFIG=cd-kubeconfig.yaml kubectl get pods
 
 
 
+5. **HomeWork 8**
+
+Необходимо создать кастомный образ nginx, отдающий свои метрики на определенном endpoint 
+● Установить в кластер Prometheus-operator любым удобным вам способом (рекомендуется ставить или по ссылке из офф документации, либо через helm-чарт) 
+● Создать deployment запускающий ваш кастомный nginx образ и service для него 
+● Настроить запуск nginx prometheus exporter (отдельным подом или в составе пода с nginx – не принципиально) и сконфигурировать его для сбора метрик с nginx 
+● Создать манифест serviceMonitor, описывающий сбор метрик с подов, которые вы создали.
+
+<details>
+  <summary>Ответ</summary>
 
 
 Устанавливаем оператор Prometheus через helm.
@@ -807,3 +817,4 @@ go_goroutines 11
 # TYPE go_info gauge
 go_info{version="go1.23.4"} 1
 ```
+</details>
