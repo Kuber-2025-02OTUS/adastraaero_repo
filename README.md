@@ -567,7 +567,7 @@ KUBECONFIG=cd-kubeconfig.yaml kubectl get pods
 
 
 
-5. **HomeWork 8**
+8. **HomeWork 8**
 
 Необходимо создать кастомный образ nginx, отдающий свои метрики на определенном endpoint 
 ● Установить в кластер Prometheus-operator любым удобным вам способом (рекомендуется ставить или по ссылке из офф документации, либо через helm-чарт) 
